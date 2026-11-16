@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مؤشر ضغط الساعات — مركز الاتصال</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#00344B;--navy2:#0A4A66;--mint:#40BCA9;--bg:#EEF3F5;--card:#fff;--ink:#0F2430;--mute:#6B7C85;--line:#E1E8EB;
+--g:#17A673;--gs:#DDF4EA;--y:#E3A008;--ys:#FFF2CC;--r:#E0453A;--rs:#FCE3E0}
+*{box-sizing:border-box}
+body{margin:0;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:16px 14px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.top h1{margin:0;font-size:18px;color:var(--navy);font-weight:700}
+.top .clock{font-size:13px;color:var(--mute);text-align:left}
+.top .clock b{display:block;font-size:20px;color:var(--navy);font-variant-numeric:tabular-nums}
+.card{background:var(--card);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,52,75,.05),0 6px 20px rgba(0,52,75,.05)}
+.sec{font-size:13px;font-weight:600;color:var(--mute);margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}
+
+/* hero */
+.hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset-inline-start:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(64,188,169,.12)}
+.hero .in{display:flex;gap:18px;align-items:center;position:relative;z-index:1}
+.ring{width:108px;height:108px;flex:none;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .v{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1}
+.ring .v b{font-size:26px}.ring .v small{font-size:11px;opacity:.75;display:block}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:13px;font-weight:600}
+.chip i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.c-g{background:var(--gs);color:#0C7A53}.c-y{background:var(--ys);color:#8A6000}.c-r{background:var(--rs);color:#B02A21}
+.hero h2{margin:10px 0 4px;font-size:22px}
+.hero p{margin:0;font-size:13px;opacity:.8}
+.next{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);display:flex;justify-content:space-between;font-size:13px;position:relative;z-index:1}
+.next span{opacity:.75}
+
+/* timeline */
+.strip{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.seg{height:44px;border-radius:8px;position:relative;cursor:default}
+.seg.cur{outline:3px solid var(--navy);outline-offset:2px}
+.seg.past{opacity:.35}
+.ticks{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-top:6px;font-size:10px;color:var(--mute);text-align:center}
+.bg-g{background:var(--g)}.bg-y{background:var(--y)}.bg-r{background:var(--r)}
+.best{margin-top:14px;font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.best .pill{background:var(--gs);color:#0C7A53;border-radius:8px;padding:3px 9px;font-weight:600}
+
+/* heatmap */
+.heat{display:grid;grid-template-columns:62px repeat(12,1fr);gap:3px;font-size:11px}
+.heat .dl{display:flex;align-items:center;font-weight:600;color:var(--ink);cursor:pointer;border-radius:6px;padding-inline-start:4px}
+.heat .dl.on{background:var(--navy);color:#fff}
+.heat .cell{height:28px;border-radius:5px;cursor:pointer;transition:transform .1s}
+.heat .cell:hover{transform:scale(1.12)}
+.heat .hh{text-align:center;color:var(--mute);font-size:10px}
+.heat .rowon{box-shadow:inset 0 0 0 2px var(--navy)}
+
+/* list */
+.list{display:grid;gap:8px}
+.it{display:grid;grid-template-columns:64px 1fr 78px;gap:12px;align-items:center;padding:12px;border-radius:12px;border:1px solid var(--line)}
+.it.cur{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset}
+.it .t{font-weight:700;font-size:15px}.it .t small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+.it .s{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.it .s i{width:9px;height:9px;border-radius:50%}
+.it .d{font-size:12px;color:var(--mute);margin-top:2px}
+.bar{height:6px;background:var(--line);border-radius:9px;margin-top:8px;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:9px}
+.it .n{text-align:left;font-size:11px;color:var(--mute)}.it .n b{display:block;font-size:17px;color:var(--ink)}
+.tag{font-size:10px;background:var(--navy);color:#fff;border-radius:5px;padding:1px 6px;font-weight:500}
+
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lg{border-radius:12px;padding:10px;font-size:12px;line-height:1.5}
+.lg b{display:block;font-size:13px}
+details summary{cursor:pointer;font-weight:600;color:var(--navy);font-size:14px}
+.upl{margin-top:10px;font-size:13px;color:var(--mute);line-height:1.7}
+.upl label{display:inline-block;margin-top:10px;background:var(--navy);color:#fff;border-radius:10px;padding:9px 16px;cursor:pointer;font-weight:600}
+.upl input{display:none}
+.msg{margin-top:8px;font-size:13px}.msg.err{color:var(--r)}.msg.ok{color:var(--g)}
+.foot{text-align:center;font-size:11px;color:var(--mute);margin-top:6px}
+
+/* TV / hall screen mode (#screen) */
+#tv{display:none}
+body.tv{background:var(--navy);overflow:hidden}
+body.tv .wrap{display:none}
+body.tv #tv{position:relative;display:grid;grid-template-rows:auto 1fr auto;height:100vh;padding:2.2vh 2.5vw;gap:2vh;color:#fff}
+.tvh{display:flex;justify-content:space-between;align-items:center}
+.tvh h1{margin:0;font-size:4vh;font-weight:700}.tvh h1 small{display:block;font-size:2.2vh;color:var(--mint);font-weight:500}
+.tvh .ck{text-align:left;font-size:2.6vh;opacity:.85}.tvh .ck b{display:block;font-size:6vh;font-variant-numeric:tabular-nums;opacity:1;line-height:1}
+.tvm{display:grid;grid-template-columns:38fr 62fr;gap:2vw;min-height:0}
+.tvnow{border-radius:2.5vh;padding:3vh 2vw;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:1.5vh}
+.tvnow .lbl{font-size:3vh;font-weight:600;opacity:.9}
+.tvnow .big{font-size:9vh;font-weight:700;line-height:1.1}
+.tvnow .sub{font-size:3.2vh;font-weight:500}
+.tvnow .rate{font-size:2.6vh;opacity:.9}
+.tvnow .nx{margin-top:2vh;background:rgba(0,0,0,.18);border-radius:1.5vh;padding:1.4vh 2vw;font-size:2.8vh}
+.tvl{display:grid;grid-template-rows:repeat(12,1fr);gap:.8vh;min-height:0}
+.tvr{display:grid;grid-template-columns:14vw 1fr 10vw;align-items:center;gap:1.5vw;border-radius:1.2vh;padding:0 1.5vw;background:rgba(255,255,255,.06);font-size:2.7vh;border-inline-start:1vh solid transparent}
+.tvr b{font-weight:700}.tvr .rt{text-align:left;font-variant-numeric:tabular-nums}
+.tvr.past{opacity:.45}
+.tvr.cur{background:#fff;color:var(--navy);font-size:3.1vh}
+.tvr .dt{display:inline-block;width:1.8vh;height:1.8vh;border-radius:50%;margin-inline-end:.8vw;vertical-align:middle}
+.tvf{display:flex;justify-content:center;gap:3vw;font-size:2.3vh;opacity:.85}
+.tvf span::before{content:"";display:inline-block;width:1.6vh;height:1.6vh;border-radius:50%;margin-inline-end:.6vw;vertical-align:middle;background:var(--c)}
+.tvbtn{display:inline-block;margin-top:10px;color:var(--navy);font-weight:600;font-size:13px}
+@media(max-width:520px){.legend{grid-template-columns:1fr}.ring{width:92px;height:92px}.hero h2{font-size:19px}.heat{grid-template-columns:48px repeat(12,1fr)}.heat .cell{height:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>مؤشر ضغط الساعات<br><span style="font-size:12px;color:var(--mint);font-weight:500">مركز الاتصال — حماية المستهلك</span></h1>
+    <div class="clock"><b id="clk"></b><span id="today"></span></div>
+  </div>
+
+  <section class="card hero" id="hero"></section>
+
+  <section class="card">
+    <div class="sec"><span id="dayTitle"></span><span>نسبة الرد لكل ساعة</span></div>
+    <div class="strip" id="strip"></div>
+    <div class="ticks" id="ticks"></div>
+    <div class="best" id="best"></div>
+  </section>
+
+  <section class="card">
+    <div class="sec"><span>الأسبوع كامل</span><span>اضغط على أي يوم</span></div>
+    <div class="heat" id="heat"></div>
+  </section>
+
+  <section class="card">
+    <div class="sec"><span>تفاصيل الساعات</span><span id="listDay"></span></div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section class="legend">
+    <div class="lg c-g"><b>● مسموح بالخروج</b>نسبة الرد ٨٥٪ فأكثر — استئذان وبريكات</div>
+    <div class="lg c-y"><b>● بحذر</b>٧٠٪ إلى أقل من ٨٥٪ — بريكات فقط، والاستئذان بموافقة المشرفة</div>
+    <div class="lg c-r"><b>● ضغط عالٍ</b>أقل من ٧٠٪ — لا خروج إلا للضرورة</div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <details>
+      <summary>التحديث الأسبوعي للبيانات</summary>
+      <div class="upl">ارفع ملف QPR الأحدث (فيه ورقة Call Detail). الصفحة تحسب آخر ١٤ يومًا وتنزّل لك ملف data.json، ارفعه في المستودع مكان القديم والشاشات تتحدث خلال ١٠ دقائق. القراءة قد تأخذ دقيقة لأن الملف كبير.
+        <br><label>اختيار ملف QPR<input type="file" id="file" accept=".xlsx,.xlsb,.xls"></label>
+        <div class="msg" id="msg"></div>
+      </div>
+    </details>
+  </section>
+  <div class="foot" id="range"></div>
+  <div class="foot"><a class="tvbtn" href="#screen">فتح وضع شاشة الصالة ←</a></div>
+</div>
+
+<div id="tv">
+  <div class="tvh"><h1>مؤشر ضغط الساعات<small>مركز الاتصال — حماية المستهلك</small></h1><div class="ck"><b id="tvclk"></b><span id="tvday"></span></div></div>
+  <div class="tvm"><div class="tvnow" id="tvnow"></div><div class="tvl" id="tvl"></div></div>
+  <div class="tvf"><a href="#details" style="position:absolute;inset-inline-end:2.5vw;bottom:1.5vh;color:rgba(255,255,255,.35);font-size:1.6vh;text-decoration:none">التفاصيل والتحديث</a><span style="--c:var(--g)">أخضر: مسموح بالخروج (٨٥٪ فأكثر)</span><span style="--c:var(--y)">أصفر: بريكات فقط (٧٠–٨٥٪)</span><span style="--c:var(--r)">أحمر: لا خروج إلا للضرورة (أقل من ٧٠٪)</span></div>
+</div>
+<script id="pdata" type="application/json">{"from":"","to":"","days":{}}</script>
+<script>
+let DATA = JSON.parse(document.getElementById('pdata').textContent);
+async function loadData(){ try { const r = await fetch('data.json?t=' + Date.now(), {cache:'no-store'}); if (r.ok){ DATA = await r.json(); render(); } } catch(e){} }
+const DAYS = [['Sunday','الأحد'],['Monday','الإثنين'],['Tuesday','الثلاثاء'],['Wednesday','الأربعاء'],['Thursday','الخميس'],['Friday','الجمعة'],['Saturday','السبت']];
+const AR = Object.fromEntries(DAYS);
+const HOURS = [8,9,10,11,12,13,14,15,16,17,18,19];
+const LAST_HOUR = 19;
+const ar = n => Number(n).toLocaleString('ar-SA');
+const hLabel = h => { const x = h % 12 || 12; return ar(x) + (h < 12 ? ' ص' : ' م'); };
+const level = rate => rate >= 85 ? 'g' : rate >= 70 ? 'y' : 'r';
+const TXT = {g:['مسموح بالخروج','استئذان وبريكات'], y:['بحذر','بريكات فقط — الاستئذان بموافقة'], r:['ضغط عالٍ','لا خروج إلا للضرورة']};
+const COL = {g:'var(--g)', y:'var(--y)', r:'var(--r)'};
+
+function riyadhNow(){
+  const p = new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Riyadh',weekday:'long',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(new Date());
+  const get = t => p.find(x => x.type === t).value;
+  return {day:get('weekday'), hour:Number(get('hour')) % 24, min:Number(get('minute'))};
+}
+function ring(rate, lv){
+  const r = 46, c = 2 * Math.PI * r, off = c * (1 - Math.min(rate, 100) / 100);
+  return `<svg viewBox="0 0 108 108" width="100%" height="100%"><circle cx="54" cy="54" r="${r}" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="9"/>
+    <circle cx="54" cy="54" r="${r}" fill="none" stroke="${COL[lv]}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>`;
+}
+
+let sel = null;
+function render(){
+  const now = riyadhNow();
+  if (!sel) sel = now.day;
+  document.getElementById('clk').textContent = ar(now.hour % 12 || 12) + ':' + (now.min < 10 ? '٠' : '') + ar(now.min);
+  document.getElementById('today').textContent = AR[now.day];
+  document.getElementById('range').textContent = 'البيانات من متوسط الفترة ' + DATA.from + ' إلى ' + DATA.to + ' (ملف QPR)';
+
+  // hero
+  const today = DATA.days[now.day] || {};
+  const cur = today[now.hour];
+  const hero = document.getElementById('hero');
+  if (cur){
+    const lv = level(cur[1]);
+    const nx = today[now.hour + 1];
+    const nxt = nx ? `<span>الساعة الجاية (${hLabel(now.hour + 1)})</span><b class="chip c-${level(nx[1])}"><i></i>${TXT[level(nx[1])][0]}</b>` : `<span>آخر ساعة في الدوام</span><b></b>`;
+    hero.innerHTML = `<div class="in"><div class="ring">${ring(cur[1], lv)}<div class="v"><div><b>${ar(cur[1])}٪</b><small>نسبة الرد</small></div></div></div>
+      <div><span class="chip c-${lv}"><i></i>الحين · ${hLabel(now.hour)}</span>
+      <h2>${TXT[lv][0]}${now.hour === LAST_HOUR ? ' <span class="tag">باستثناء</span>' : ''}</h2>
+      <p>${TXT[lv][1]} · متوسط ${ar(cur[0])} مكالمة في الساعة</p></div></div>
+      <div class="next">${nxt}</div>`;
+  } else {
+    hero.innerHTML = `<div class="in"><div><span class="chip" style="background:rgba(255,255,255,.12);color:#fff"><i></i>خارج الدوام</span>
+      <h2>المركز يعمل من ٨ صباحًا إلى ٨ مساءً</h2><p>اختر يومًا من الأسفل لمعرفة ساعاته</p></div></div>`;
+  }
+
+  // strip for selected day
+  const d = DATA.days[sel] || {};
+  const isToday = sel === now.day;
+  document.getElementById('dayTitle').textContent = AR[sel] + (isToday ? ' — اليوم' : '');
+  document.getElementById('strip').innerHTML = HOURS.map(h => {
+    if (!d[h]) return `<div class="seg" style="background:var(--line)"></div>`;
+    const cls = isToday && h === now.hour ? 'cur' : isToday && h < now.hour ? 'past' : '';
+    return `<div class="seg bg-${level(d[h][1])} ${cls}" title="${hLabel(h)}: ${d[h][1]}%"></div>`;
+  }).join('');
+  document.getElementById('ticks').innerHTML = HOURS.map(h => `<div>${ar(h % 12 || 12)}</div>`).join('');
+  const green = HOURS.filter(h => d[h] && h !== LAST_HOUR && level(d[h][1]) === 'g');
+  document.getElementById('best').innerHTML = green.length
+    ? '<span>أنسب ساعات الخروج:</span>' + green.map(h => `<span class="pill">${hLabel(h)}</span>`).join('')
+    : '<span>لا توجد ساعات خضراء في هذا اليوم.</span>';
+
+  // heatmap
+  let hm = '<div></div>' + HOURS.map(h => `<div class="hh">${ar(h % 12 || 12)}</div>`).join('');
+  for (const [en, a] of DAYS){
+    const dd = DATA.days[en] || {};
+    hm += `<div class="dl ${en === sel ? 'on' : ''}" data-d="${en}">${a}</div>` + HOURS.map(h =>
+      `<div class="cell ${dd[h] ? 'bg-' + level(dd[h][1]) : ''} ${en === sel ? 'rowon' : ''}" data-d="${en}" style="${dd[h] ? '' : 'background:var(--line)'}" title="${a} ${hLabel(h)}${dd[h] ? ': ' + dd[h][1] + '%' : ''}"></div>`).join('');
+  }
+  const heat = document.getElementById('heat'); heat.innerHTML = hm;
+  heat.querySelectorAll('[data-d]').forEach(el => el.onclick = () => { sel = el.dataset.d; render(); });
+
+  // list
+  document.getElementById('listDay').textContent = AR[sel];
+  document.getElementById('list').innerHTML = HOURS.filter(h => d[h]).map(h => {
+    const [calls, rate] = d[h]; const lv = level(rate);
+    return `<div class="it ${isToday && h === now.hour ? 'cur' : ''}"><div class="t">${hLabel(h)}<small>إلى ${hLabel(h + 1)}</small></div>
+      <div><div class="s"><i class="bg-${lv}"></i>${TXT[lv][0]}${h === LAST_HOUR ? ' <span class="tag">باستثناء</span>' : ''}</div><div class="d">${TXT[lv][1]}</div>
+      <div class="bar"><span class="bg-${lv}" style="width:${Math.min(rate,100)}%"></span></div></div>
+      <div class="n"><b>${ar(rate)}٪</b>${ar(calls)} مكالمة</div></div>`;
+  }).join('') || '<p>لا توجد بيانات لهذا اليوم.</p>';
+  if (document.body.classList.contains('tv')) renderTV(now);
+}
+
+function renderTV(now){
+  const d = DATA.days[now.day] || {}, cur = d[now.hour];
+  document.getElementById('tvclk').textContent = document.getElementById('clk').textContent;
+  document.getElementById('tvday').textContent = AR[now.day];
+  const box = document.getElementById('tvnow');
+  if (cur){
+    const lv = level(cur[1]), nx = d[now.hour + 1];
+    box.style.background = COL[lv];
+    box.innerHTML = `<div class="lbl">الحين: من ${hLabel(now.hour)} إلى ${hLabel(now.hour + 1)}</div><div class="big">${TXT[lv][0]}</div>
+      <div class="sub">${now.hour === LAST_HOUR ? 'آخر ساعة — الخروج باستثناء فقط' : TXT[lv][1]}</div>
+      <div class="rate">نسبة الرد المتوقعة ${ar(cur[1])}٪، ومتوسط ${ar(cur[0])} مكالمة</div>
+      ${nx ? `<div class="nx">الساعة الجاية: <b>${TXT[level(nx[1])][0]}</b></div>` : ''}`;
+  } else {
+    box.style.background = 'rgba(255,255,255,.08)';
+    box.innerHTML = '<div class="big" style="font-size:6vh">خارج الدوام</div><div class="sub">المركز يعمل من ٨ صباحًا إلى ٨ مساءً</div>';
+  }
+  document.getElementById('tvl').innerHTML = HOURS.map(h => {
+    if (!d[h]) return '<div class="tvr"></div>';
+    const lv = level(d[h][1]), cls = h === now.hour ? 'cur' : h < now.hour ? 'past' : '';
+    return `<div class="tvr ${cls}" style="border-color:${COL[lv]}"><b>${hLabel(h)} – ${hLabel(h + 1)}</b>
+      <span><i class="dt" style="background:${COL[lv]}"></i>${TXT[lv][0]}${h === LAST_HOUR ? ' (باستثناء)' : ''}</span><span class="rt">${ar(d[h][1])}٪</span></div>`;
+  }).join('');
+}
+function mode(){
+  const h = location.hash;
+  const tv = h === '#screen' || (h !== '#details' && innerWidth >= 900 && innerWidth > innerHeight);
+  document.body.classList.toggle('tv', tv); render();
+}
+window.addEventListener('hashchange', mode);
+mode();
+loadData();
+setInterval(render, 60000);
+setInterval(loadData, 10 * 60000);
+
+// ---- weekly update ----
+function loadLib(){
+  return new Promise((ok, no) => {
+    if (window.XLSX) return ok();
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = ok; s.onerror = () => no(new Error('تعذر تحميل قارئ Excel'));
+    document.head.appendChild(s);
+  });
+}
+function compute(rows){
+  const head = rows[0].map(x => String(x || '').trim());
+  const iDate = head.indexOf('Date'), iTime = head.indexOf('Time'), iDisp = head.indexOf('disposition');
+  if (iDate < 0 || iTime < 0 || iDisp < 0) throw new Error('ما لقيت أعمدة Date و Time و disposition في ورقة Call Detail');
+  const recs = [];
+  for (let k = 1; k < rows.length; k++){
+    const r = rows[k]; const dt = r[iDate], tm = r[iTime];
+    if (typeof dt !== 'number' || typeof tm !== 'number' || !r[iDisp]) continue;
+    const day = new Date(Date.UTC(1899, 11, 30) + Math.floor(dt) * 864e5);
+    const key = day.toISOString().slice(0, 10);
+    const h = Math.floor((tm % 1) * 24 + 1e-7);
+    recs.push({key, wd: DAYS[day.getUTCDay()][0], h, ans: !String(r[iDisp]).startsWith('ABANDONED')});
+  }
+  const dates = [...new Set(recs.map(r => r.key))].sort().slice(-14);
+  if (!dates.length) throw new Error('الملف ما فيه مكالمات');
+  const keep = new Set(dates), agg = {}, nd = {};
+  for (const r of recs){
+    if (!keep.has(r.key)) continue;
+    (nd[r.wd] ||= new Set()).add(r.key);
+    const c = ((agg[r.wd] ||= {})[r.h] ||= [0,0]); c[0]++; if (r.ans) c[1]++;
+  }
+  const days = {};
+  for (const wd in agg){ days[wd] = {};
+    for (const h in agg[wd]){ const [n,a] = agg[wd][h]; days[wd][h] = [Math.round(n / nd[wd].size), Math.round(a / n * 1000) / 10]; } }
+  return {from: dates[0], to: dates[dates.length-1], days};
+}
+document.getElementById('file').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const msg = document.getElementById('msg'); msg.className = 'msg'; msg.textContent = 'جاري قراءة الملف…';
+  try {
+    await loadLib();
+    const wb = XLSX.read(await f.arrayBuffer(), {type:'array', sheets:'Call Detail'});
+    const ws = wb.Sheets['Call Detail']; if (!ws) throw new Error('الملف ما فيه ورقة Call Detail');
+    const nd = compute(XLSX.utils.sheet_to_json(ws, {header:1, raw:true}));
+    const url = URL.createObjectURL(new Blob([JSON.stringify(nd)], {type:'application/json'}));
+    const link = document.createElement('a'); link.href = url; link.download = 'data.json'; link.click();
+    msg.className = 'msg ok'; msg.textContent = 'تم تجهيز data.json (' + nd.from + ' إلى ' + nd.to + ') — ارفعه في مستودع GitHub مكان القديم.';
+  } catch (err) {
+    msg.className = 'msg err'; msg.textContent = 'تعذر التحديث: ' + (err.message || err);
+  }
+};
+</script>
+</body>
+</html>
